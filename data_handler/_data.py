@@ -1,19 +1,18 @@
-# TODO: doc
-
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import resample
 
 
-#
-# Load data
-#
 def load_data(input_dir):
+    """
+    Data loader helper function.
+
+    :param input_dir: The input file directory.
+    :return: pandas.DataFrame
+    """
     dtypes = {
-        'TransactionID': 'int32',
         'isFraud': 'int8',
-        # 'TransactionDT': 'int32',
         'TransactionAmt': 'float32',
         'ProductCD': 'object',
         'card1': 'int32',
@@ -27,21 +26,22 @@ def load_data(input_dir):
         'dist1': 'float32',  # missing values
         'dist2': 'float32',  # missing values
     }
-    train = pd.read_csv(input_dir + '/train_transaction_n20000.csv', index_col='TransactionID', dtype=dtypes)
+    train = pd.read_csv(input_dir + '/train_transaction_n20000.csv', dtype=dtypes)
 
     # drop lots of columns
     train = train[[col for col in dtypes if col != 'TransactionID']]
 
-    # use only 1000 samples
-    # train = train[0:500]
-
     return train
 
 
-#
-# Prepare data
-#
 def prepare_data(train, fix_imbalance=None):
+    """
+    Some data preprocessing and optional imbalance fixing.
+
+    :param train: pandas.DataFrame of imput data
+    :param fix_imbalance: None, 'over' or 'under' for over- or under-sampling.
+    :return: pandas.DataFrame preprocessed data.
+    """
     # Handle missing
     for col in [col for col in train.columns if train[col].dtype in ['int32', 'float32']]:
         train[col].fillna(0, inplace=True)
@@ -69,25 +69,49 @@ def prepare_data(train, fix_imbalance=None):
     return X, y, labels
 
 
-#
-# Fix imbalance with under-sampling
-#
 def undersample_data(train):
+    """
+    Fix imbalance with under-sampling
+
+    :param train: pandas.Dataframe
+    :return: pandas.Dataframe
+    """
     class_0 = train[train['isFraud'] == 0]
     class_1 = train[train['isFraud'] == 1]
 
     class_0_sub = class_0.sample(class_1.shape[0])
 
-    return pd.concat([class_0_sub, class_1], axis=0)
+    return pd.concat([class_0_sub, class_1], axis=0).sort_index().reset_index(drop=True)
 
 
-#
-# Fix imbalance with over-sampling
-#
 def oversample_data(train):
+    """
+    Fix imbalance with obrt-sampling
+
+    :param train: pandas.Dataframe
+    :return: pandas.Dataframe
+    """
     class_0 = train[train['isFraud'] == 0]
     class_1 = train[train['isFraud'] == 1]
 
     class_1_up = resample(class_1, replace=True, n_samples=len(class_0), random_state=55)
 
-    return pd.concat([class_0, class_1_up], axis=0)
+    return pd.concat([class_0, class_1_up], axis=0).sort_index().reset_index(drop=True)
+
+
+def fast_auc(y_true, y_prob):
+    """
+    Fast roc_auc computation helper:
+    https://www.kaggle.com/c/microsoft-malware-prediction/discussion/76013
+    """
+    y_true = np.asarray(y_true)
+    y_true = y_true[np.argsort(y_prob)]
+    nfalse = 0
+    auc = 0
+    n = len(y_true)
+    for i in range(n):
+        y_i = y_true[i]
+        nfalse += (1 - y_i)
+        auc += y_i * nfalse
+    auc /= (nfalse * (n - nfalse))
+    return auc

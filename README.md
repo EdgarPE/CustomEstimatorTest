@@ -8,3 +8,13 @@ The original dataset contains 4 files (train_transaction.csv, train_identity.csv
 
 The toy dataset is the first 20.000 records of the **train_transaction.csv** file. 
 
+## How to execute
+
+    pip install -r requirements.txt
+    python demo.py
+
+
+## How to execute in docker
+
+    ./docker-build.sh
+    ./docker-run.sh

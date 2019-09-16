@@ -6,8 +6,8 @@
 - [x] Demo script
 - [x] Implement ThresholdBinarizer class
 - [x] Implement custom_estimator class
-- [ ] Train-test split
-- [ ] Metrics
-- [ ] Documentation in Markdown
-- [ ] Code cleanup
-- [ ] .Dockerfile
+- [x] Train-test split
+- [x] Metrics
+- [x] Documentation in code
+- [x] Code cleanup
+- [x] .Dockerfile
