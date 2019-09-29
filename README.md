@@ -1,4 +1,4 @@
-# Aliz.ai Data Science Test
+# Custom estimator Data Science Test
 
 ## The Data
 
