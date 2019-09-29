@@ -1,5 +1,5 @@
 import numpy as np
-from aliz_estimator import CustomEstimator
+from custom_estimator import CustomEstimator
 from data_handler import load_data, prepare_data
 from sklearn.metrics import accuracy_score, f1_score, fbeta_score, confusion_matrix, precision_score, recall_score, \
     balanced_accuracy_score
